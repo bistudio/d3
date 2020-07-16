@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h1>D3 Covid-19 Dashboard</h1>
+    <form>
+    <fieldset>
+        <div class="form-control">
+            {{form.country_name.label() }}
+            {{form.country_name(class="selectpicker") }}
+        </div>
+        <div>
+            <label>Date Reported</label>
+            <input type="date">
+        </div>
+    </fieldset>
+
+    </form>
+    {% block javascript %}
+        <script type="text/javascript">
+
+        data = {{ covid_data | safe }}
+
+        var height = 450
+            , width = 500
+            , bar_gap = 4
+            , bar_width = 90
+        ;
+
+        yscale = d3.scale.linear()
+            .domain([0, 100000])
+        .range([0,100])
+        ;
+
+        var canvas = d3.select('body')
+                        .append('svg')
+                        .attr('width', width)
+                        .attr('height', height)
+                        .attr('overflow', 'visible')
+        ;
+
+        canvas.selectAll('rect')
+                .data(data)
+                .enter()
+                .append('rect')
+                .attr('y', function(d, i) {return yscale(d['cases'])})
+                .attr('x', function (d, i) {return i * (width/yscale(data.length))})
+                .attr('height', function(d, i) {return yscale(d['cases'])})
+                .attr('width', width / yscale(data.length) - bar_gap)
+                .attr('fill', '#3182bd')
+                .append('title')
+                .text(function(d, i){return d['cases']})
+                ;
+
+
+
+        </script>
+    {% endblock javascript %}
+{% endblock content %}
