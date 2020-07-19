@@ -1,0 +1,86 @@
+{% extends 'layout.html' %}
+{% block content %}
+    {% block javascript %}
+        <script type="text/javascript">
+
+            let no_array_elements = Math.round(Math.random()*5);
+            if (no_array_elements === 0){no_array_elements = 3}
+
+        function get_data(no_array_elements) {
+                let data_list = []
+           for (let j = 0; j < no_array_elements; j++){
+                    data_list.push(Math.round(Math.random()*69))
+                }
+            return data_list
+                 }
+
+
+        let data = get_data(no_array_elements);
+
+        const width = 500
+            , height = 500
+            , bar_width = width / data.length
+            , bar_padding = 4
+            , cx = 50
+            , cy = 100
+            , r = 40
+            , animatedDelay = 300
+            , animateDuration = 5000
+        ;
+
+
+        {# General Update Pattern
+        DOM elements < data elements = Enter
+        DOM elements > data elements = Exit
+        DOM elements = data elements = Update
+        #}
+
+
+            const canvas = d3.select("body")
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('overflow', 'visible')
+                .attr('transform', 'translate(200,100)')
+            ;
+            const radiusScale = d3.scale.ordinal()
+            ;
+
+            function update(data) {
+                // Perform the data join
+                const selection = canvas.selectAll('circle')
+                    .data(data)
+                ;
+
+                // Remove surplus elements
+                selection.exit().remove();
+
+                // Add new elements
+                selection.enter()
+                    .append('circle')
+                    .attr('cx', function (d, i){ return 20 + i * cx * 2})
+                    .attr('cy', cy)
+                    .append('title')
+                    .text(function (d) {return d})
+                     ;
+
+                // Update existing and new elements
+                selection.attr('r', function(d) {return (d);})
+                         .attr('fill','#73000d')
+                ;
+            }
+
+           setInterval(function  () {
+               update(data)
+           }
+               , 3000)
+
+        setInterval(
+        function () {
+            console.log(data)
+        },3000)
+
+
+        </script>
+    {% endblock javascript%}
+{% endblock content %}

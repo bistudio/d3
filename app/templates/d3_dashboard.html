@@ -5,7 +5,7 @@
     <fieldset>
         <div class="form-control">
             {{form.country_name.label() }}
-            {{form.country_name(class="selectpicker") }}
+            {{form.country_name(class="selectpicker", id='ctry')}}
         </div>
         <div>
             <label>Date Reported</label>
@@ -17,17 +17,46 @@
     {% block javascript %}
         <script type="text/javascript">
 
-        data = {{ covid_data | safe }}
+        data_scope = {{ covid_data | safe }}
+            selected_country = "{{ sc_code }}"
 
-        var height = 450
+            function set_selected_country(country) {
+                let cObj = document.getElementById('ctry');
+                cObj.value = country
+                }
+            set_selected_country(selected_country)
+
+        cObj = document.getElementById('ctry')
+        cObj.onchange = function (){
+            var country = cObj.value
+            set_selected_country(country)
+        }
+
+
+        data = data_scope.filter(function (e) { return e['country_code'] ===  selected_country  })
+
+        var height = 100
             , width = 500
             , bar_gap = 4
-            , bar_width = 90
+            , bar_width = width/data.length
         ;
 
+        min_data_value = d3.min(data, function(d){
+          return d['cases']
+        })
+
+        max_data_value = d3.max(data, function(d){
+          return d['cases']
+        })
+
         yscale = d3.scale.linear()
-            .domain([0, 100000])
-        .range([0,100])
+                .domain([min_data_value, max_data_value])
+                .range([height,0])
+                ;
+
+        xscale = d3.scale.ordinal()
+                .domain(data.map(function(d) { return d['date_reported']; }))
+                .rangeRoundBands([0, width], .1)
         ;
 
         var canvas = d3.select('body')
@@ -41,16 +70,14 @@
                 .data(data)
                 .enter()
                 .append('rect')
-                .attr('y', function(d, i) {return yscale(d['cases'])})
-                .attr('x', function (d, i) {return i * (width/yscale(data.length))})
-                .attr('height', function(d, i) {return yscale(d['cases'])})
-                .attr('width', width / yscale(data.length) - bar_gap)
+                .attr('y', function(d) {return yscale(d['cases'])})
+                .attr('x', function (d) {return xscale(d['date_reported'])})
+                .attr('height', function(d) {return height - yscale(d['cases'])})
+                .attr('width', xscale.rangeBand())
                 .attr('fill', '#3182bd')
                 .append('title')
                 .text(function(d, i){return d['cases']})
                 ;
-
-
 
         </script>
     {% endblock javascript %}
