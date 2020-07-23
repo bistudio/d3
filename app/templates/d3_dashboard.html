@@ -1,44 +1,78 @@
 {% extends 'layout.html' %}
 {% block content %}
     <h1>D3 Covid-19 Dashboard</h1>
-    <form>
+    <form id="filterBox">
     <fieldset>
         <div class="form-control">
-            {{form.country_name.label() }}
+            {{form.country_name.label(class="form-control-sm") }}
             {{form.country_name(class="selectpicker", id='ctry')}}
         </div>
         <div>
             <label>Date Reported</label>
-            <input type="date">
+            <input id="datefilter" type="date">
         </div>
     </fieldset>
-
     </form>
+    <table id="container" class="table">
+    <thead>
+    <tr>
+        <th>Cases vs Deaths</th>
+        <th></th>
+        <th>% Deaths</th>
+    </tr>
+    </thead>
+    <tr>
+        <td id="chart1"></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <thead>
+    <tr>
+        <th>Top {{ 'N' }} Cases vs % Death</th>
+        <th></th>
+        <th>Top {{ 'N' }} % Deaths</th>
+    </tr>
+    </thead>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    </table>
     {% block javascript %}
         <script type="text/javascript">
+
+        let date_filter = document.getElementById('datefilter');
+        let date_default_value = new Date();
+        date_filter.defaultValue = date_default_value.toISOString().substring(0,10)
+        ;
 
         data_scope = {{ covid_data | safe }}
             selected_country = "{{ sc_code }}"
 
-            function set_selected_country(country) {
-                let cObj = document.getElementById('ctry');
-                cObj.value = country
-                }
-            set_selected_country(selected_country)
+        let parseDate = d3.time.format('%d/%m/%Y').parse;
+        data_scope.forEach(function(d){
+                d.date_reported = parseDate(d.date_reported).toISOString().substring(0,10);
+                d.day_number = d.day_number;
+                d.month_number = d.month_number;
+                d.year_number = d.year_number;
+                d.continent = d.continent;
+                d.country_code = d.country_code;
+                d.country_terr_code = d.country_terr_code;
+                d.cases = d.cases;
+                d.deaths = d.deaths;
+                d.populationData2019 = d.populationData2019;
+                d.cum_num_14_day_cases_per_100k = d.cum_num_14_day_cases_per_100k;
+        });
 
-        cObj = document.getElementById('ctry')
-        cObj.onchange = function (){
-            var country = cObj.value
-            set_selected_country(country)
-        }
 
+        let data = data_scope.filter(function (e) { return (e['country_code'] === selected_country
+            || e['country_code'] != null) && e['date_reported'] === '2020-07-20' });
 
-        data = data_scope.filter(function (e) { return e['country_code'] ===  selected_country  })
-
-        var height = 100
+        const height = 100
             , width = 500
             , bar_gap = 4
-            , bar_width = width/data.length
+            , bar_width = width / data.length
         ;
 
         min_data_value = d3.min(data, function(d){
@@ -55,29 +89,37 @@
                 ;
 
         xscale = d3.scale.ordinal()
-                .domain(data.map(function(d) { return d['date_reported']; }))
+                .domain(data.map(function(d) { return parseDate(d['date_reported']); }))
                 .rangeRoundBands([0, width], .1)
         ;
 
-        var canvas = d3.select('body')
-                        .append('svg')
-                        .attr('width', width)
-                        .attr('height', height)
-                        .attr('overflow', 'visible')
+        const canvas = d3.select('#chart1')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('overflow', 'visible')
         ;
 
+
+        // when the input range changes update the circle
+        {#d3.select("#date_filter").on("input", function() {#}
+        {#  update(data);#}
+
+
         canvas.selectAll('rect')
-                .data(data)
-                .enter()
-                .append('rect')
-                .attr('y', function(d) {return yscale(d['cases'])})
-                .attr('x', function (d) {return xscale(d['date_reported'])})
-                .attr('height', function(d) {return height - yscale(d['cases'])})
-                .attr('width', xscale.rangeBand())
-                .attr('fill', '#3182bd')
-                .append('title')
-                .text(function(d, i){return d['cases']})
-                ;
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('y', function(d) {return yscale(d['cases'])})
+            .attr('x', function (d) {return xscale(d['date_reported'])})
+            .attr('height', function(d) {return height - yscale(d['cases'])})
+            .attr('width', xscale.rangeBand())
+            .attr('fill', '#3182bd')
+            .append('title')
+            .text(function(d, i){return d['cases']})
+            ;
+
+
 
         </script>
     {% endblock javascript %}

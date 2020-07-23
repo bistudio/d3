@@ -1,3 +1,28 @@
 body{
     font-family: 'Montserrat', sans-serif;
 }
+
+
+h1{
+    text-align: center;
+    padding: 50px;
+}
+
+#filterBox div{
+    margin:auto;
+    border: 0px;
+    display: inline;
+}
+
+#container {
+    margin: auto;
+}
+
+#container ,thead{
+    text-align: center;
+}
+
+#container ,tbody{
+    width:960px;
+    border: 0px;
+}

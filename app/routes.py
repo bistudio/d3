@@ -23,14 +23,14 @@ def home():
     return render_template('d3_dashboard.html', form=form, covid_data=obj, sc_code=sc_code, title="Covid-19 Dashboard")
 
 
-@app.route('/d3_enter')
-def d3_enter():
+@app.route('/d3_general_update_pattern')
+def d3_general_update_pattern():
     return render_template('general_update_pattern.html')
 
 
-@app.route('/d3_exit')
-def d3_exit():
-    return render_template('d3_exit.html')
+@app.route('/d3_scale')
+def d3_scale():
+    return render_template('d3_scale.html')
 
 
 @app.route('/d3_update')

@@ -18,9 +18,9 @@ with open('covid-19.csv', 'r') as fin:  # `with` statement available in 2.5+
     dr = csv.DictReader(fin)  # comma is default delimiter
     next(dr)
     # Nested lists, tuples are used for executemany, not for execute.
-    to_db = [(i['daterep'], i['day'], i['month']
+    to_db = [(i['dateRep'], i['day'], i['month']
               , i['year'], i['cases'], i['deaths'], i['country_name']
-              , i['country_code'], i['countryterritorycode']
+              , i['country_code'], i['countryterritoryCode']
               , i['popData2019'], i['continent'], i['cum_num_14_days_of_cases_per_100K']) for i in dr]
 
 create_table_sql = """CREATE TABLE IF NOT EXISTS covid19_historical_data (

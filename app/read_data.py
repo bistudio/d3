@@ -33,9 +33,7 @@ SELECT  date_reported
 ,       continent
 ,       cum_num_14_days_cases_per_100K
 
-FROM    covid19_historical_data 
-WHERE   date_reported >= '2020-06-01 00:00:00'
-and country_code In ('UK','US','BR','CZ','GH')
+FROM    covid19_historical_data
 ;
 """
 

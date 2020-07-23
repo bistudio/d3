@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired
 
 def country_select_query():
     from app.models import Country
-    return Country.query
+    return Country.query.order_by(Country.country_name)
 
 
 def default_select():
