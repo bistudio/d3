@@ -1,11 +1,11 @@
 {% extends 'layout.html' %}
 {% block content %}
     <h1>D3 Covid-19 Dashboard</h1>
-    <form id="filterBox">
+    <form id="filterBox" class="clsform">
     <fieldset>
         <div class="form-control">
             {{form.country_name.label(class="form-control-sm") }}
-            {{form.country_name(class="selectpicker", id='ctry')}}
+            {{form.country_name(class="selectpicker", id='country_filter')}}
         </div>
         <div>
             <label>Date Reported</label>
@@ -42,17 +42,29 @@
     {% block javascript %}
         <script type="text/javascript">
 
-        let date_filter = document.getElementById('datefilter');
-        let date_default_value = new Date();
-        date_filter.defaultValue = date_default_value.toISOString().substring(0,10)
-        ;
-
         data_scope = {{ covid_data | safe }}
-            selected_country = "{{ sc_code }}"
+        default_selected_country = "{{ default_selected_country }}"
+
+        let date_filter = document.getElementById('datefilter');
+        let date_default_value = date_filter.value;
+        let country_filter = document.getElementById('country_filter')
+
+            for (let i = 0; i < country_filter.length; i++) {
+                if (country_filter[i].value === default_selected_country) {
+                    country_filter[i].selected = true
+                }
+            }
 
         let parseDate = d3.time.format('%d/%m/%Y').parse;
+            function  dateFormatter (date_string){
+                const day = date_string.substring(0, 2);
+                const month = date_string.substring(3, 5);
+                const year = date_string.substring(10, 6);
+                const formatted_date = [year, month,  day].join('-')
+                return formatted_date
+            }
         data_scope.forEach(function(d){
-                d.date_reported = parseDate(d.date_reported).toISOString().substring(0,10);
+                d.date_reported = dateFormatter(d.date_reported);
                 d.day_number = d.day_number;
                 d.month_number = d.month_number;
                 d.year_number = d.year_number;
@@ -65,9 +77,18 @@
                 d.cum_num_14_day_cases_per_100k = d.cum_num_14_day_cases_per_100k;
         });
 
+        d3.select('#country_filter').on('change', update);
 
-        let data = data_scope.filter(function (e) { return (e['country_code'] === selected_country
-            || e['country_code'] != null) && e['date_reported'] === '2020-07-20' });
+        let data = data_scope.filter(function (e) { return e['date_reported'] === date_filter.value });
+
+            country_filter.addEventListener('change', function (){
+                data = data_scope.filter(function (e) { return e['date_reported'] === date_filter.value;});
+            });
+
+
+            date_filter.addEventListener('change', function (){
+                console.log(date_filter.value);
+            });
 
         const height = 100
             , width = 500
@@ -100,26 +121,35 @@
             .attr('overflow', 'visible')
         ;
 
+        function update(){
+            data = data_scope.filter(function (e) { return e['date_reported'] === country_filter.value;});
+            canvas.selectAll('rect')
+                .data(data)
+                .attr('y', function(d) {return yscale(d['cases'])})
+                .attr('x', function (d) {return xscale(d['date_reported'])})
+                .attr('height', function(d) {return height - yscale(d['cases'])})
+                .attr('width', xscale.rangeBand())
+                .attr('fill', '#3182bd')
+                .append('title')
+                .text(function(d, i){return d['cases']})
+            ;
+        }
 
-        // when the input range changes update the circle
-        {#d3.select("#date_filter").on("input", function() {#}
-        {#  update(data);#}
+
 
 
         canvas.selectAll('rect')
             .data(data)
             .enter()
-            .append('rect')
-            .attr('y', function(d) {return yscale(d['cases'])})
-            .attr('x', function (d) {return xscale(d['date_reported'])})
-            .attr('height', function(d) {return height - yscale(d['cases'])})
-            .attr('width', xscale.rangeBand())
-            .attr('fill', '#3182bd')
-            .append('title')
-            .text(function(d, i){return d['cases']})
+                .append('rect')
+                .attr('y', function(d) {return yscale(d['cases'])})
+                .attr('x', function (d) {return xscale(d['date_reported'])})
+                .attr('height', function(d) {return height - yscale(d['cases'])})
+                .attr('width', xscale.rangeBand())
+                .attr('fill', '#3182bd')
+                .append('title')
+                .text(function(d, i){return d['cases']})
             ;
-
-
 
         </script>
     {% endblock javascript %}

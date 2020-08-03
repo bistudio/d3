@@ -12,15 +12,15 @@ import json
 def home():
     form = CountryForm()
 
-    sc = Country.query.filter_by(id=form.country_name.data.id).first()
-    sc_code = form.country_name.data.country_code
+    default_selected_country = form.country_name.data.country_code
 
     with open('./app/data/covid.json', 'r') as f:
         covid_data = f.read()
 
     obj = json.loads(covid_data)
 
-    return render_template('d3_dashboard.html', form=form, covid_data=obj, sc_code=sc_code, title="Covid-19 Dashboard")
+    return render_template('d3_dashboard.html', form=form, covid_data=obj
+                           , default_selected_country=default_selected_country, title="Covid-19 Dashboard")
 
 
 @app.route('/d3_general_update_pattern')
@@ -36,3 +36,22 @@ def d3_scale():
 @app.route('/d3_update')
 def d3_update():
     return render_template('d3_update.html')
+
+
+@app.route('/d3_path')
+def d3_path():
+    return render_template('d3_path.html')
+
+
+@app.route('/d3_animate')
+def d3_animate():
+    return render_template('d3_animate.html')
+
+
+@app.route('/d3_arc')
+def d3_arc():
+    return render_template('d3_arc.html')
+
+@app.route('/d3_bar_chart')
+def d3_bar_chart():
+    return render_template('d3_bar_chart.html')

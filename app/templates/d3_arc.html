@@ -1,0 +1,159 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+{#    <svg width="400" height="400">#}
+{#    <path  d="" stroke-dasharray="dotted" fill="none" stroke="#73000d" stroke-width="1" transform="translate(200,200)">#}
+{#        <animate id="arc" attributeName="d" from="" to="" dur="1" fill="freeze" repeatCount="1"></animate>#}
+{#    </path>#}
+{##}
+{#    </svg>#}
+    <div id="pie"></div>
+    {% block javascript %}
+        <script type="text/javascript">
+
+        let D = "M200,200  M 299.6194698091746 191.28442572523417 L 298.4807753012208 182.63518223330698 " +
+        "L 296.5925826289068 174.11809548974793 L 293.9692620785909 165.79798566743312 " +
+        "L 290.630778703665 157.73817382593006 L 286.6025403784439 150 L 281.9152044288992 142.6423563648954 " +
+        "L 276.6044443118978 135.72123903134607 L 270.71067811865476 129.28932188134524 " +
+        "L 264.27876096865396 123.39555568810219 L 257.35764363510464 118.08479557110083 L 250 113.39745962155614 " +
+        "L 242.26182617406994 109.36922129633501 L 234.20201433256688 106.03073792140917 " +
+        "L 225.88190451025207 103.40741737109317 L 217.36481776669305 101.5192246987792 " +
+        "L 208.71557427476583 100.38053019082544 L 200 100 L 191.28442572523417 100.38053019082544 " +
+        "L 182.63518223330698 101.5192246987792 L 174.11809548974793 103.40741737109317 " +
+        "L 165.79798566743312 106.03073792140916 L 157.73817382593006 109.369221296335 " +
+        "L 150.00000000000003 113.39745962155612 L 142.64235636489542 118.0847955711008 " +
+        "L 135.72123903134604 123.39555568810219 L 129.28932188134524 129.28932188134524 " +
+        "L 123.3955556881022 135.72123903134604 L 118.08479557110081 142.64235636489542 L 113.39745962155612 150 " +
+        "L 109.36922129633501 157.73817382593006 L 106.03073792140917 165.79798566743312 " +
+        "L 103.40741737109317 174.1180954897479 L 101.5192246987792 182.63518223330692 " +
+        "L 100.38053019082544 191.28442572523417 L 100 200 L 100.38053019082544 208.7155742747658 " +
+        "L 101.5192246987792 217.36481776669305 L 103.40741737109316 225.88190451025204 " +
+        "L 106.03073792140916 234.20201433256688 L 109.369221296335 242.26182617406994 L 113.39745962155614 250 " +
+        "L 118.0847955711008 257.3576436351046 L 123.39555568810219 264.27876096865396 " +
+        "L 129.28932188134524 270.71067811865476 L 135.72123903134604 276.6044443118978 " +
+        "L 142.64235636489536 281.9152044288992 L 149.99999999999994 286.60254037844385 " +
+        "L 157.7381738259301 290.630778703665 L 165.79798566743307 293.9692620785908 " +
+        "L 174.11809548974793 296.5925826289068 L 182.63518223330698 298.4807753012208 " +
+        "L 191.28442572523417 299.6194698091746 L 199.99999999999997 300 L 208.7155742747658 299.6194698091746 " +
+        "L 217.364817766693 298.48077530122083 L 225.881904510252 296.5925826289068 " +
+        "L 234.2020143325669 293.9692620785908 L 242.26182617406988 290.63077870366504 L 250 286.60254037844385 " +
+        "L 257.35764363510464 281.9152044288992 L 264.27876096865396 276.6044443118978 " +
+        "L 270.71067811865476 270.71067811865476 L 276.6044443118978 264.27876096865396 " +
+        "L 281.9152044288992 257.35764363510464 L 286.60254037844385 250.00000000000006 " +
+        "L 290.630778703665 242.26182617406994 L 293.9692620785908 234.20201433256693 " +
+        "L 296.5925826289068 225.88190451025207 L 298.4807753012208 217.36481776669305 " +
+        "L 299.6194698091746 208.71557427476583 L 300 200 L 299.6194698091746 191.28442572523417"
+
+        let data = [55, 75, 95];
+        let width = 700;
+        let height = 700;
+        let animateDuration = 3000;
+        let animateDelay = 300;
+
+        let color = d3.scale.ordinal()
+            .range(["#73000d", "#3182bd", "#000434"]);
+
+        let canvas = d3.select('#pie')
+                            .append('svg')
+                            .attr('width',width)
+                            .attr('height',height)
+                            ;
+
+        let group = canvas.append('g')
+                            .attr('transform','translate(300,300)')
+        ;
+
+        let arcGenerator = d3.svg.arc()
+                                .innerRadius(40)
+                                .outerRadius(80)
+                                .padRadius(5)
+                                ;
+
+          function updateTween (d) {
+              const i = d3.interpolate(this._current, d);
+              this._current = i(0);
+            return function(t) {
+              return arcGenerator(i(t));
+            };
+          }
+
+          function exitTween (d) {
+              const end = Object.assign({}, this._current, {startAngle: this._current.endAngle});
+              const i = d3.interpolate(d, end);
+              return function(t) {
+              return arcGenerator(i(t));
+            };
+          }
+
+        let pieLayout = d3.layout.pie()
+                                .value(function(d) { return d; })
+                                ;
+
+        function joinKey (d) {
+            return d.data;
+        }
+
+        arcs = group.selectAll('.arc')
+                        .data(pieLayout(data), joinKey)
+                        .enter()
+                            .append('g')
+                            .attr('class','arc')
+                            .each(function(d) { this._current = Object.assign({}, d, { startAngle: d.endAngle }); })
+        ;
+
+
+
+        let t = d3.transition().duration(animateDuration);
+
+        arcs.transition(t)
+            .attrTween('d',exitTween)
+            .remove()
+        ;
+
+        let t2 = d3.transition();
+
+        let t3 = d3.transition();
+
+        arcs.transition(t2)
+            .attrTween('d', updateTween);
+
+        arcs.append('path')
+            .attr('fill','ghostwhite')
+            .transition(t3)
+            .delay(animateDelay)
+            .duration(function(d,i){return i * animateDuration})
+            .attrTween('d', updateTween)
+            .attr('d', function  (d, i) {return arcGenerator(d)})
+            .attr('fill', function(d){return color(d.data)})
+        ;
+
+
+        {#let d = '';#}
+        {##}
+        {#function drawArc() {#}
+        {#    let angle = 0#}
+        {##}
+        {#    for (let i=0; i < 360; i++){#}
+        {#        angle -= 5;#}
+        {#        angle %= 360;#}
+        {#        const radius = 100;#}
+        {#        const radians = (angle / 180) * Math.PI;#}
+        {#        const x = 200 + Math.cos(radians) * radius;#}
+        {#        const y = 200 + Math.sin(radians) * radius;#}
+        {#        const e = 'M 200 200';#}
+        {#        if(i===0) {#}
+        {#            d = e + " M " + x + " " + y;#}
+        {#            d += d#}
+        {#            }#}
+        {#        else {#}
+        {#            d = e + " L " + x + " " + y;#}
+        {#            d += d#}
+        {#            }#}
+        {#        console.log(i)#}
+        {#                }#}
+        {#    return d#}
+        {#            }#}
+
+        </script>
+    {% endblock javascript %}
+{% endblock %}

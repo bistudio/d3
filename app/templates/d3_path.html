@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+    <div id="canvas" class="svg-container">
+    </div>
+
+    <div>
+    <svg viewBox="0,0,800,800">
+        <defs>
+            <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="gray" stroke-width="0.5"></path>
+            </pattern>
+            <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+                <rect width="100" height="100" fill="url(#smallGrid)"></rect>
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="gray" stroke-width="1"></path>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)"></rect>
+        {# x, y #}
+        <path d="" fill="transparent" stroke="black">
+            <animate attributeName="d"  dur="2" from=""  to="M 50 50 C 200 400, 330 140, 600 350" fill="freeze" repeatCount="indefinite"></animate>
+        </path>
+        <path d="" fill="transparent" stroke="#73000d" stroke-dasharray="0,1,0">
+            <animate attributeName="d"  dur="5" from=""  to="M 50 50 L 600 350" fill="freeze" repeatCount="indefinite"></animate>
+        </path>
+        
+    </svg>
+    </div>
+    {% block javascript %}
+        <script type="text/javascript">
+
+        let viewBox = '0,0,500,500'
+        ,animateDelay = 0
+        ,animateDuration = 10
+        ;
+
+        let canvas = d3.select('#canvas')
+                        .append("svg")
+                        .attr("preserveAspectRatio", "xMinYMin meet")
+                        .attr("viewBox", "0 0 300 300")
+                        .classed("svg-content", true)
+        ;
+
+
+        </script>
+    {% endblock javascript %}
+{% endblock content %}
